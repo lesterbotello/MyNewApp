@@ -1,0 +1,20 @@
+GET http://localhost:5247/todos/
+
+###
+
+POST http://localhost:5247/todos/
+Content-Type: application/json
+
+{
+    "title": "Prepare presentations for ConFoo",
+    "dueDate": "2025-02-22T23:59:59",
+    "isCompleted": false
+}
+
+
+###
+
+DELETE http://localhost:5247/todos/3
+
+###
+GET http://localhost:5247/todos/2
