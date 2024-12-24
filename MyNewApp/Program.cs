@@ -1,10 +1,69 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<IUserService, UserService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => 
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateActor = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
 app.MapGet("/", () => "Welcome to the web app!");
+
+// Login endpoint
+app.MapPost("/login", (User user, IUserService userService) => Login(user, userService));
+
+IResult Login(User user, IUserService userService)
+{
+    if(!string.IsNullOrWhiteSpace(user.Username) && 
+        !string.IsNullOrWhiteSpace(user.Password) && 
+        userService.IsValidUser(user))
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.GivenName, user.GivenName),
+            new Claim(ClaimTypes.Surname, user.FamilyName)
+        };
+        
+        var token = new JwtSecurityToken(
+            issuer: app.Configuration["Jwt:Issuer"],
+            audience: app.Configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.Now.AddMinutes(30),
+            signingCredentials: new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(app.Configuration["Jwt:Key"])),
+                SecurityAlgorithms.HmacSha256)
+        );
+
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return Results.Ok(tokenString);
+    }
+    
+    return Results.BadRequest();
+}
 
 var todos = new List<TodoItem>
 {
@@ -13,7 +72,8 @@ var todos = new List<TodoItem>
     // new TodoItem(3, "Publish to Azure", DateTime.Now.AddDays(3), false)
 };
 
-app.MapGet("/todos", () => todos);
+app.MapGet("/todos", () => todos)
+    .RequireAuthorization();
 
 app.MapGet("/todos/{id}", Results<Ok<TodoItem>, NotFound> (int id) =>
 {
@@ -82,3 +142,5 @@ app.Run();
 
 
 public record TodoItem(int Id, string Title, DateTime DueDate, bool IsCompleted);
+
+public record User(string Username, string Password, string Email, string GivenName, string FamilyName);

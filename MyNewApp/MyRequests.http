@@ -1,4 +1,6 @@
 GET http://localhost:5247/todos/
+Content-Type: application/json
+Authorization: Bearer <your_token_here>
 
 ###
 
@@ -11,10 +13,21 @@ Content-Type: application/json
     "isCompleted": false
 }
 
-
 ###
 
 DELETE http://localhost:5247/todos/3
 
 ###
 GET http://localhost:5247/todos/2
+
+###
+POST http://localhost:5247/login/
+Content-Type: application/json
+
+{
+    "Username": "admin",
+    "Password": "admin",
+    "Email": "admin@admin.com",
+    "GivenName": "Admin",
+    "FamilyName": "Admin"
+}
