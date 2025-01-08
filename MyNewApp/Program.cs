@@ -1,5 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -39,25 +37,7 @@ IResult Login(User user, IUserService userService)
         !string.IsNullOrWhiteSpace(user.Password) && 
         userService.IsValidUser(user))
     {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.GivenName, user.GivenName),
-            new Claim(ClaimTypes.Surname, user.FamilyName)
-        };
-        
-        var token = new JwtSecurityToken(
-            issuer: app.Configuration["Jwt:Issuer"],
-            audience: app.Configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
-            signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(app.Configuration["Jwt:Key"])),
-                SecurityAlgorithms.HmacSha256)
-        );
-
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        var tokenString = userService.GenerateToken(user, app);
 
         return Results.Ok(tokenString);
     }
