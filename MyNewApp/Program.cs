@@ -55,6 +55,8 @@ var todos = new List<TodoItem>
 app.MapGet("/todos", () => todos)
     .RequireAuthorization();
 
+// If you want to return multiple types of results, you can change the NotFound 
+// generic type parameter by IResult
 app.MapGet("/todos/{id}", Results<Ok<TodoItem>, NotFound> (int id) =>
 {
     var todo = todos.FirstOrDefault(t => t.Id == id);
@@ -102,6 +104,21 @@ app.MapPost("/todos", Results<Created<TodoItem>, BadRequest> (TodoItem todo) =>
     }
 
     return await next(context);
+});
+
+app.MapPut("/todos/{id}", Results<Ok<TodoItem>, NotFound> (int id, TodoItem todo) =>
+{
+    var existingTodo = todos.FirstOrDefault(t => t.Id == id);
+
+    if (existingTodo is null)
+    {
+        return TypedResults.NotFound();
+    }
+
+    todos.Remove(existingTodo);
+    todos.Add(todo);
+
+    return TypedResults.Ok(todo);
 });
 
 app.MapDelete("/todos/{id}", Results<NoContent, NotFound> (int id) =>
