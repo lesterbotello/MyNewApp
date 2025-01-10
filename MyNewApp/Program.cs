@@ -62,7 +62,7 @@ app.MapGet("/todos/{id}", Results<Ok<TodoItem>, NotFound> (int id) =>
     var todo = todos.FirstOrDefault(t => t.Id == id);
 
     return todo is not null ? TypedResults.Ok(todo) : TypedResults.NotFound();
-});
+}).RequireAuthorization();;
 
 app.MapPost("/todos", Results<Created<TodoItem>, BadRequest> (TodoItem todo) =>
 {
@@ -104,7 +104,7 @@ app.MapPost("/todos", Results<Created<TodoItem>, BadRequest> (TodoItem todo) =>
     }
 
     return await next(context);
-});
+}).RequireAuthorization();
 
 app.MapPut("/todos/{id}", Results<Ok<TodoItem>, NotFound> (int id, TodoItem todo) =>
 {
@@ -116,10 +116,10 @@ app.MapPut("/todos/{id}", Results<Ok<TodoItem>, NotFound> (int id, TodoItem todo
     }
 
     todos.Remove(existingTodo);
-    todos.Add(todo);
+    todos.Add(todo with { Id = id });
 
     return TypedResults.Ok(todo);
-});
+}).RequireAuthorization();
 
 app.MapDelete("/todos/{id}", Results<NoContent, NotFound> (int id) =>
 {
@@ -133,11 +133,21 @@ app.MapDelete("/todos/{id}", Results<NoContent, NotFound> (int id) =>
     todos.Remove(todo);
 
     return TypedResults.NoContent();
-});
+}).AddEndpointFilter(async (context, next) => {
+    var id = context.GetArgument<int>(0);
+    var todo = todos.FirstOrDefault(todo => todo.Id == id);
+
+    if (todo is null) 
+    {
+        return TypedResults.NotFound();
+    }
+
+    if(!todo.IsCompleted)
+    {
+        return TypedResults.BadRequest(new { Error = "Can't delete an uncompleted todo." });
+    }
+
+    return await next(context);
+}).RequireAuthorization();
 
 app.Run();
-
-
-public record TodoItem(int Id, string Title, DateTime DueDate, bool IsCompleted);
-
-public record User(string Username, string Password, string Email, string GivenName, string FamilyName);

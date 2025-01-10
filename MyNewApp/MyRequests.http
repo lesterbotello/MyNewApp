@@ -1,26 +1,5 @@
-GET http://localhost:5247/todos/
-Content-Type: application/json
-Authorization: Bearer <your_token_here>
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkBhZG1pbi5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3N1cm5hbWUiOiJBZG1pbiIsImV4cCI6MTczNjUxNDQzNiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MjQ3LyIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTI0Ny8ifQ.uYwlwqQpCLDU4Bp9lQ2VEH9r332A5Z62hx_Obmm3NZY
 
-###
-
-POST http://localhost:5247/todos/
-Content-Type: application/json
-
-{
-    "title": "Prepare presentations for ConFoo",
-    "dueDate": "2025-02-22T23:59:59",
-    "isCompleted": false
-}
-
-###
-
-DELETE http://localhost:5247/todos/3
-
-###
-GET http://localhost:5247/todos/2
-
-###
 POST http://localhost:5247/login/
 Content-Type: application/json
 
@@ -30,4 +9,42 @@ Content-Type: application/json
     "Email": "admin@admin.com",
     "GivenName": "Admin",
     "FamilyName": "Admin"
+}
+###
+
+GET http://localhost:5247/todos/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+###
+
+POST http://localhost:5247/todos/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "title": "Prepare another presentation for ConFoo",
+    "dueDate": "2025-05-22T23:59:59",
+    "isCompleted": false
+}
+
+
+###
+
+DELETE http://localhost:5247/todos/1
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:5247/todos/2
+Authorization: Bearer {{token}}
+
+###
+PUT http://localhost:5247/todos/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Prepare presentation for ConFoo",
+  "dueDate": "2025-05-22T23:59:59",
+  "isCompleted": true
 }
