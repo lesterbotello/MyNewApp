@@ -1,10 +1,13 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(conn), ServiceLifetime.Singleton);
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<ITodoRepository, TodoRepository>();
 

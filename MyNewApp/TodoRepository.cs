@@ -1,6 +1,11 @@
 class TodoRepository : ITodoRepository
 {
-    List<TodoItem> _todos = new();
+    private readonly AppDbContext _dbContext;
+
+    public TodoRepository(AppDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
 
     public TodoItem Add(TodoItem todo)
     {
@@ -9,10 +14,11 @@ class TodoRepository : ITodoRepository
             throw new Exception("Title is required.");
         }
         
-        var nextId = _todos.Any() ? _todos.Max(t => t.Id) + 1 : 1;
+        var nextId = _dbContext.Todos.Any() ? _dbContext.Todos.Max(t => t.Id) + 1 : 1;
 
         todo = todo with { Id = nextId };
-        _todos.Add(todo);
+        _dbContext.Todos.Add(todo);
+        _dbContext.SaveChanges();
 
         return todo;
     }
@@ -32,40 +38,42 @@ class TodoRepository : ITodoRepository
 
     public void Delete(int id)
     {
-        var todo = _todos.FirstOrDefault(t => t.Id == id);
+        var todo = _dbContext.Todos.FirstOrDefault(t => t.Id == id);
 
         if (todo is null)
         {
             throw new Exception("Todo not found.");
         }
 
-        _todos.Remove(todo);
+        _dbContext.Todos.Remove(todo);
+        _dbContext.SaveChanges();
     }
 
     public TodoItem FindById(int id)
     {
-        return _todos?.FirstOrDefault(t => t.Id == id);
+        return _dbContext.Todos?.FirstOrDefault(t => t.Id == id);
     }
 
     public IEnumerable<TodoItem> FindByTitle(string title)
     {
-        return _todos?.Where(t => t.Title.Contains(title));
+        return _dbContext.Todos?.Where(t => t.Title.Contains(title));
     }
 
-    public IEnumerable<TodoItem> GetAll() => _todos;
+    public IEnumerable<TodoItem> GetAll() => _dbContext.Todos;
 
     public TodoItem Update(int id, TodoItem todo)
     {
-        var existingTodo = _todos.FirstOrDefault(t => t.Id == id);
+        var existingTodo = _dbContext.Todos.FirstOrDefault(t => t.Id == id);
 
         if (existingTodo is null)
         {
             throw new Exception("Todo not found.");
         }
 
-        _todos.Remove(existingTodo);
+        _dbContext.Todos.Remove(existingTodo);
         var newTodo = todo with { Id = id };
-        _todos.Add(newTodo);
+        _dbContext.Todos.Add(newTodo);
+        _dbContext.SaveChanges();
 
         return newTodo;
     }
