@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddSingleton<ITodoRepository, TodoRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => 
@@ -26,6 +27,8 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+var todoRepository = app.Services.GetRequiredService<ITodoRepository>();
+
 app.MapGet("/", () => "Welcome to the web app!");
 
 // Login endpoint
@@ -45,38 +48,33 @@ IResult Login(User user, IUserService userService)
     return Results.BadRequest();
 }
 
-var todos = new List<TodoItem>
-{
-    // new TodoItem(1, "Learn C#", DateTime.Now.AddDays(1), false),
-    // new TodoItem(2, "Build a web app", DateTime.Now.AddDays(2), false),
-    // new TodoItem(3, "Publish to Azure", DateTime.Now.AddDays(3), false)
-};
-
-app.MapGet("/todos", () => todos)
+app.MapGet("/todos", () => todoRepository.GetAll())
     .RequireAuthorization();
 
 // If you want to return multiple types of results, you can change the NotFound 
 // generic type parameter by IResult
-app.MapGet("/todos/{id}", Results<Ok<TodoItem>, NotFound> (int id) =>
+app.MapGet("/todos/{id:int}", Results<Ok<TodoItem>, NotFound> (int id) =>
 {
-    var todo = todos.FirstOrDefault(t => t.Id == id);
+    var todo = todoRepository.FindById(id);
 
     return todo is not null ? TypedResults.Ok(todo) : TypedResults.NotFound();
-}).RequireAuthorization();;
+}).RequireAuthorization();
 
-app.MapPost("/todos", Results<Created<TodoItem>, BadRequest> (TodoItem todo) =>
+
+app.MapGet("/todos/{text}", (string text) => todoRepository.FindByTitle(text))
+    .RequireAuthorization();
+
+app.MapPost("/todos", Results<Created<TodoItem>, BadRequest<string>> (TodoItem todo) =>
 {
-    if (string.IsNullOrWhiteSpace(todo.Title))
+    try
     {
-        return TypedResults.BadRequest();
+        var addedTodo = todoRepository.Add(todo);
+        return TypedResults.Created("/todos/{id}", addedTodo);
     }
-
-    var nextId = todos.Any() ? todos.Max(t => t.Id) + 1 : 1;
-
-    todo = todo with { Id = nextId };
-    todos.Add(todo);
-
-    return TypedResults.Created("/todos/{id}", todo);
+    catch(Exception ex)
+    {
+        return TypedResults.BadRequest(ex.Message);
+    }
 })
 .AddEndpointFilter(async (context, next) =>
 {
@@ -88,7 +86,7 @@ app.MapPost("/todos", Results<Created<TodoItem>, BadRequest> (TodoItem todo) =>
         errors.Add(nameof(TodoItem.DueDate), ["Due date cannot be in the past."]);
     }
 
-    if (todos.Any(t => t.Title == todo.Title))
+    if (todoRepository.GetAll().Any(t => t.Title == todo.Title))
     {
         errors.Add(nameof(TodoItem.Title), ["Todo with the same title already exists."]);
     }
@@ -108,34 +106,31 @@ app.MapPost("/todos", Results<Created<TodoItem>, BadRequest> (TodoItem todo) =>
 
 app.MapPut("/todos/{id}", Results<Ok<TodoItem>, NotFound> (int id, TodoItem todo) =>
 {
-    var existingTodo = todos.FirstOrDefault(t => t.Id == id);
+    var existingTodo = todoRepository.Update(id, todo);
 
     if (existingTodo is null)
     {
         return TypedResults.NotFound();
     }
 
-    todos.Remove(existingTodo);
-    todos.Add(todo with { Id = id });
-
-    return TypedResults.Ok(todo);
+    return TypedResults.Ok(existingTodo);
 }).RequireAuthorization();
 
 app.MapDelete("/todos/{id}", Results<NoContent, NotFound> (int id) =>
 {
-    var todo = todos.FirstOrDefault(t => t.Id == id);
-
-    if (todo is null)
+    try
+    {
+        todoRepository.Delete(id);
+    }
+    catch (Exception)
     {
         return TypedResults.NotFound();
     }
 
-    todos.Remove(todo);
-
     return TypedResults.NoContent();
 }).AddEndpointFilter(async (context, next) => {
     var id = context.GetArgument<int>(0);
-    var todo = todos.FirstOrDefault(todo => todo.Id == id);
+    var todo = todoRepository.GetAll().FirstOrDefault(todo => todo.Id == id);
 
     if (todo is null) 
     {
