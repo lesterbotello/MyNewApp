@@ -1,1 +1,0 @@
-public record TodoItem(int Id, string Title, DateTime DueDate, bool IsCompleted);
