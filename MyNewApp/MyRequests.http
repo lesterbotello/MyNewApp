@@ -1,12 +1,12 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkBhZG1pbi5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3N1cm5hbWUiOiJBZG1pbiIsImV4cCI6MTczNjgyMTYyNiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MjQ3LyIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTI0Ny8ifQ.dEV2x-I6C7xoOCvtId5o5eULayKLjLO7a_hS2H1WYvg
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkBhYmMuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZ2l2ZW5uYW1lIjoiQWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9zdXJuYW1lIjoiQWRtaW4iLCJleHAiOjE3MzY5ODcyODMsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTI0Ny8iLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUyNDcvIn0.w-9gIU76zD-9KW3pMxBIUvckEJ_5NN3K7_9AG2c_sEM
 
 POST http://localhost:5247/login/
 Content-Type: application/json
 
 {
     "Username": "admin",
-    "Password": "admin",
-    "Email": "admin@admin.com",
+    "Password": "test123",
+    "Email": "admin@abc.com",
     "GivenName": "Admin",
     "FamilyName": "Admin"
 }
@@ -21,7 +21,7 @@ POST http://localhost:5247/todos/
 Content-Type: application/json
 
 {
-    "title": "Estudiar para la clase de backend",
+    "title": "Ir a la playa con la novia",
     "dueDate": "2025-05-22T23:59:59",
     "isCompleted": false
 }
@@ -49,4 +49,17 @@ Content-Type: application/json
   "title": "Prepare presentation for ConFoo",
   "dueDate": "2025-05-22T23:59:59",
   "isCompleted": true
+}
+
+###
+
+POST http://localhost:5247/register/
+Content-Type: application/json
+
+{
+  "Username": "admin",
+  "Password": "test123",
+  "Email": "admin@abc.com",
+  "GivenName": "Admin",
+  "FamilyName": "Admin"
 }

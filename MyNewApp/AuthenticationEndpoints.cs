@@ -13,5 +13,17 @@ static class AuthenticationEndpoints
 
             return TypedResults.BadRequest("Usuario o contraseña inválidos.");
         });
+
+        app.MapPost("/register", Results<Ok<string>, BadRequest<string>> (User user) =>
+        {
+            if (userService.IsValidUser(user))
+            {
+                return TypedResults.BadRequest("Usuario ya existe.");
+            }
+
+            userService.AddUser(user);
+
+            return TypedResults.Ok(userService.GenerateToken(user, app));
+        });
     }
 }

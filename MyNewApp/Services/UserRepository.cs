@@ -14,10 +14,13 @@ class UserRepository : IUserRepository
             throw new Exception("User information is missing.");
         }
 
-        _dbContext.Users.Add(user);
+        var nextId = _dbContext.Users.Any() ? _dbContext.Users.Max(t => t.Id) + 1 : 1;
+
+        var newUser = new User(nextId, user.Username, user.Password, user.Email, user.GivenName, user.FamilyName);
+        _dbContext.Users.Add(newUser);
         _dbContext.SaveChanges();
 
-        return user;
+        return newUser;
     }
 
     public IEnumerable<User> AddMany(IEnumerable<User> Users)
@@ -53,7 +56,7 @@ class UserRepository : IUserRepository
 
     public IEnumerable<User> GetAll() => _dbContext.Users;
 
-    public User Update(string email, User User)
+    public User Update(string email, User user)
     {
         var existingUser = _dbContext.Users.FirstOrDefault(t => t.Email == email);
 
@@ -62,8 +65,11 @@ class UserRepository : IUserRepository
             throw new Exception("User not found.");
         }
 
+        var existingId = existingUser.Id;
+
+        var newUser = new User(existingId, user.Username, user.Password, email, user.GivenName, user.FamilyName);
+
         _dbContext.Users.Remove(existingUser);
-        var newUser = User with { Email = email };
         _dbContext.Users.Add(newUser);
         _dbContext.SaveChanges();
 

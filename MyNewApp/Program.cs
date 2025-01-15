@@ -9,6 +9,7 @@ var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<TodoAppDbContext>(options => options.UseSqlite(conn), ServiceLifetime.Singleton);
 builder.Services.AddSingleton<ITodoRepository, TodoRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IUserService, UserService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

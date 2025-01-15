@@ -1,1 +1,1 @@
-public record User(string Username, string Password, string Email, string GivenName, string FamilyName);
+public record User(int Id, string Username, string Password, string Email, string GivenName, string FamilyName);

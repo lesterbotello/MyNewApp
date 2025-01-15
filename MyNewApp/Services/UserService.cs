@@ -5,9 +5,18 @@ using Microsoft.IdentityModel.Tokens;
 
 public class UserService : IUserService
 {
+    public IUserRepository _userRepository { get; }
+
+    public UserService(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
+
     public bool IsValidUser(User user)
     {
-        if (user.Username == "admin" && user.Password == "admin")
+        var foundUser = _userRepository.FindByEmail(user.Email);
+
+        if (foundUser is not null && user.Username == foundUser.Username && user.Password == foundUser.Password)
         {
             return true;
         }
@@ -36,5 +45,12 @@ public class UserService : IUserService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public User AddUser(User user)
+    {
+        var newUser = _userRepository.Add(user);
+
+        return newUser;
     }
 }
