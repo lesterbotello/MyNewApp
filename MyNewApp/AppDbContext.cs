@@ -8,4 +8,5 @@ public class AppDbContext : DbContext
 
     // This represents the table in the database
     public virtual DbSet<TodoItem> Todos { get; set; }
+    public virtual DbSet<User> Users { get; set; }
 }

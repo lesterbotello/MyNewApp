@@ -5,14 +5,26 @@ using Microsoft.IdentityModel.Tokens;
 
 public class UserService : IUserService
 {
+    //Implement to connect to DB -  HOMEWORK!
+    private readonly AppDbContext _dbcontext;
+
+    public UserService(AppDbContext dbcontext)
+    {
+        _dbcontext = dbcontext;
+    }
     public bool IsValidUser(User user)
     {
-        if (user.Username == "admin" && user.Password == "admin")
-        {
-            return true;
-        }
+        var existingUser = _dbcontext.Users.
+        FirstOrDefault(u => u.Username == user.Username && u.Password == user.Password);
 
-        return false;
+        return existingUser != null;
+        
+        // if (user.Username == "admin" && user.Password == "admin")
+        // {
+        //     return true;
+        // }
+
+        // return false;
     }
 
     public string GenerateToken(User user, WebApplication app)
@@ -24,7 +36,7 @@ public class UserService : IUserService
             new Claim(ClaimTypes.GivenName, user.GivenName),
             new Claim(ClaimTypes.Surname, user.FamilyName)
         };
-        
+
         var token = new JwtSecurityToken(
             issuer: app.Configuration["Jwt:Issuer"],
             audience: app.Configuration["Jwt:Audience"],
