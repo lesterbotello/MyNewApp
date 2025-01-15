@@ -31,7 +31,7 @@ public class UserService : IUserService
     public bool IsValidUser(User user)
     {
 
-         var existingUser = _dbContext.Users.FirstOrDefault(u => u.Username == user.Username);
+         var existingUser = _dbContext.Users.FirstOrDefault(u => u.Username == user.Username && u.Password == user.Password);
 
         if (existingUser is null)
         {
