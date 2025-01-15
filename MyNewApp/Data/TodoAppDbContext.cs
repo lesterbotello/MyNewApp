@@ -7,4 +7,5 @@ public class TodoAppDbContext : DbContext
     }
 
     public virtual DbSet<Todo>? Todos { get; set; }
+     public virtual DbSet<User>? Users { get; set; }
 }

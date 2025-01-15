@@ -5,14 +5,40 @@ using Microsoft.IdentityModel.Tokens;
 
 public class UserService : IUserService
 {
+    private readonly TodoAppDbContext _dbContext;
+
+    public UserService(TodoAppDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+     public User Add(User user)
+    {
+
+        if (string.IsNullOrWhiteSpace(user.Username) || string.IsNullOrWhiteSpace(user.Password) || string.IsNullOrWhiteSpace(user.Email) ||  string.IsNullOrWhiteSpace(user.GivenName) ||  string.IsNullOrWhiteSpace(user.FamilyName))
+        {
+            throw new Exception("All fields are required.");
+        }
+        
+        var nextId = _dbContext.Users.Any() ? _dbContext.Users.Max(t => t.Id) + 1 : 1;
+
+        user = user with { Id = nextId };
+        _dbContext.Users.Add(user);
+        _dbContext.SaveChanges();
+
+        return user;
+    }
+
     public bool IsValidUser(User user)
     {
-        if (user.Username == "admin" && user.Password == "admin")
+
+         var existingUser = _dbContext.Users.FirstOrDefault(u => u.Username == user.Username);
+
+        if (existingUser is null)
         {
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public string GenerateToken(User user, WebApplication app)
