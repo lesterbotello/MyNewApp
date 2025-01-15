@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkBhZG1pbi5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3N1cm5hbWUiOiJBZG1pbiIsImV4cCI6MTczNjcxMzk1MSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MjQ3LyIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTI0Ny8ifQ.7R3l0K22ikRFQVmvyoFKHIsmydExZuHmzQk3e9ln-FU
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkBhZG1pbi5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3N1cm5hbWUiOiJBZG1pbiIsImV4cCI6MTczNjg5NDE3MywiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MjQ3LyIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTI0Ny8ifQ.HSWifwFwSvlyHEwdvN2jJB33uZIIarHdMYELdDPN7ts
 
 POST http://localhost:5247/login/
 Content-Type: application/json
@@ -31,7 +31,7 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:5247/todos/1
+DELETE http://localhost:5247/todos/2
 Authorization: Bearer {{token}}
 
 ###
@@ -55,3 +55,11 @@ Content-Type: application/json
   "dueDate": "2025-05-22T23:59:59",
   "isCompleted": true
 }
+
+###
+
+GET http://localhost:5247/log/
+
+###
+
+GET http://localhost:5247/badendpoint/

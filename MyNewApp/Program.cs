@@ -1,8 +1,11 @@
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -10,6 +13,13 @@ var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(conn), ServiceLifetime.Singleton);
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<ITodoRepository, TodoRepository>();
+
+builder.Services.AddOpenApi(options =>
+{
+    options.OpenApiVersion = OpenApiSpecVersion.OpenApi2_0;
+});
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => 
@@ -30,9 +40,18 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// After adding openapi, you map it here:
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    options.RoutePrefix = string.Empty;
+});
+
 var todoRepository = app.Services.GetRequiredService<ITodoRepository>();
 
-app.MapGet("/", () => "Welcome to the web app!");
+LoggingEndpoints.Map(app, app.Logger);
 
 // Login endpoint
 app.MapPost("/login", (User user, IUserService userService) => Login(user, userService));
@@ -147,5 +166,38 @@ app.MapDelete("/todos/{id}", Results<NoContent, NotFound> (int id) =>
 
     return await next(context);
 }).RequireAuthorization();
+
+app.MapGet("/badendpoint", () => {
+    throw new ApplicationException("This is a bad endpoint");
+});
+
+// Middleware to log the request execution time
+// app.Use(async (context, next) =>
+// {
+//     var start = DateTime.UtcNow;
+//     await next.Invoke(context);
+//     app.Logger.LogInformation($"Request {context.Request.Method} {context.Request.Path} executed in {(DateTime.UtcNow - start).TotalMilliseconds}ms");
+// });
+
+// This is the refactored version of the middleware above
+// app.UseMiddleware<PerformanceTimer>();
+
+// This is the middleware above wrapped around an extension method
+app.UsePerformanceTimer();
+
+app.UseExceptionHandler(builder => {
+    builder.Run(async context => {
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = 500;
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new { 
+            context.Response.StatusCode,
+            Error = "Internal Server Error. Contact support at support@abc.xyz" // We want to be as ambiguous as possible
+        }));
+    });
+});
 
 app.Run();
