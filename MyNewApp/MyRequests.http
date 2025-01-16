@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkBhYmMuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZ2l2ZW5uYW1lIjoiQWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9zdXJuYW1lIjoiQWRtaW4iLCJleHAiOjE3MzY5ODcyODMsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTI0Ny8iLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUyNDcvIn0.w-9gIU76zD-9KW3pMxBIUvckEJ_5NN3K7_9AG2c_sEM
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkBhYmMuY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZ2l2ZW5uYW1lIjoiQWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9zdXJuYW1lIjoiQWRtaW4iLCJleHAiOjE3MzY5OTIwOTAsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTI0Ny8iLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUyNDcvIn0.rVOavL59v-8OUzISM-DH15MeIZuw9vSyE5K19fTLaRg
 
 POST http://localhost:5247/login/
 Content-Type: application/json
@@ -14,10 +14,12 @@ Content-Type: application/json
 
 GET http://localhost:5247/todos/
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ###
 
 POST http://localhost:5247/todos/
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -30,19 +32,21 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:5247/todos/1
+Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:5247/todos/1
+GET http://localhost:5247/todos/2
 Authorization: Bearer {{token}}
 
 ###
 
 
 GET http://localhost:5247/todos/estud
+Authorization: Bearer {{token}}
 
 ###
 
-PUT http://localhost:5247/todos/1
+PUT http://localhost:5247/todos/
 Content-Type: application/json
 
 {

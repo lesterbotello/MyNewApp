@@ -56,7 +56,8 @@ class TodoRepository : ITodoRepository
 
     public IEnumerable<Todo> FindByTitle(string title)
     {
-        return _dbContext.Todos?.Where(t => t.Title.ToLowerInvariant().Contains(title.ToLowerInvariant()));
+        var passedText = title.ToLowerInvariant();
+        return _dbContext.Todos?.Where(t => t.Title.ToLower().Contains(passedText));
     }
 
     public IEnumerable<Todo> GetAll() => _dbContext.Todos;

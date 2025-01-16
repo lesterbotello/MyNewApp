@@ -13,9 +13,11 @@ static class TodoEndpoints
             return todo is not null ? TypedResults.Ok(todo) : TypedResults.NotFound();
         }).RequireAuthorization();
 
-        app.MapGet("/todos", () => todoRepository.GetAll());
+        app.MapGet("/todos", () => todoRepository.GetAll())
+            .RequireAuthorization();
 
-        app.MapGet("/todos/{text}", (string text) => todoRepository.FindByTitle(text));
+        app.MapGet("/todos/{text}", (string text) => todoRepository.FindByTitle(text))
+            .RequireAuthorization();;
 
         app.MapPost("/todos", Results<Created<Todo>, BadRequest<string>> (Todo todo) =>
         {
@@ -55,7 +57,8 @@ static class TodoEndpoints
             }
 
             return await next(context);
-        });
+        })
+        .RequireAuthorization();
 
         app.MapPut("/todos/{id}", Results<Ok<Todo>, NotFound> (int id, Todo todo) =>
         {
@@ -67,7 +70,8 @@ static class TodoEndpoints
             }
 
             return TypedResults.Ok(existingTodo);
-        });
+        })
+        .RequireAuthorization();
 
         app.MapDelete("/todos/{id}", Results<NoContent, NotFound> (int id) =>
         {

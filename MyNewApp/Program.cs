@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,6 +12,12 @@ builder.Services.AddDbContext<TodoAppDbContext>(options => options.UseSqlite(con
 builder.Services.AddSingleton<ITodoRepository, TodoRepository>();
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IUserService, UserService>();
+
+builder.Services.AddOpenApi(options => {
+    options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0;
+});
+builder.Services.AddSwaggerGen();
+builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => 
@@ -37,12 +44,16 @@ TodoEndpoints.Map(app, todoRepository);
 
 AuthenticationEndpoints.Map(app, userService);
 
-// app.Use(async (ctx, next) => 
+// app.Use(async (context, next) => 
 // {
-//     var start = DateTime.Now;
-//     await next.Invoke();
-//     app.Logger.LogInformation($"Request duration: {(DateTime.Now - start).TotalMilliseconds}");
+//     var start = DateTime.UtcNow;
 //     await next();
+//     var end = DateTime.UtcNow;
+//     app.Logger.LogInformation($"Request executed in {(end - start).TotalMilliseconds}ms");
 // });
+
+// app.UseMiddleware<PerformanceTimer>();
+
+app.UsePerformanceTimer();
 
 app.Run();
