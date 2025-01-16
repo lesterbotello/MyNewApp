@@ -40,6 +40,14 @@ var app = builder.Build();
 var todoRepository = app.Services.GetRequiredService<ITodoRepository>();
 var userService = app.Services.GetRequiredService<IUserService>();
 
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI(options => 
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Alterna's Todo API");
+    options.RoutePrefix = string.Empty;
+});
+
 TodoEndpoints.Map(app, todoRepository);
 
 AuthenticationEndpoints.Map(app, userService);
