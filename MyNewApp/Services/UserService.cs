@@ -26,12 +26,14 @@ public class UserService : IUserService
 
     public string GenerateToken(User user, WebApplication app)
     {
+        var foundUser = _userRepository.FindByEmail(user.Email);
+
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.GivenName, user.GivenName),
-            new Claim(ClaimTypes.Surname, user.FamilyName)
+            new Claim(ClaimTypes.Name, foundUser.Username),
+            new Claim(ClaimTypes.Email, foundUser.Email),
+            new Claim(ClaimTypes.GivenName, foundUser.GivenName),
+            new Claim(ClaimTypes.Surname, foundUser.FamilyName)
         };
         
         var token = new JwtSecurityToken(

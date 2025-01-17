@@ -1,4 +1,4 @@
-interface ITodoRepository 
+public interface ITodoRepository 
 {
     Todo Add(Todo todo);
 

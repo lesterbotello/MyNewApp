@@ -65,3 +65,5 @@ AuthenticationEndpoints.Map(app, userService);
 app.UsePerformanceTimer();
 
 app.Run();
+
+public partial class Program { }
