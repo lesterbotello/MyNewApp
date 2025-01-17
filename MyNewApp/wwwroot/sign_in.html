@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+        #protected-content {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login Test</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+            <button type="button" id="logoutBtn" style="display: none;">Logout</button>
+        </form>
+        <div id="status"></div>
+        <div id="protected-content">
+            <h3>Protected Content</h3>
+            <button type="button" id="fetchDataBtn">Fetch Protected Data</button>
+            <pre id="protectedData"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Using Fetch API (Modern approach)
+        class AuthClient {
+            constructor(apiEndpoint) {
+                this.apiEndpoint = apiEndpoint;
+                this.token = localStorage.getItem('authToken'); // Check if we have a stored token
+            }
+
+            async login(username, email, password) {
+                try {
+                    const response = await fetch(`${this.apiEndpoint}/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ Username: username, Password: password, Email: email })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    this.token = data.token;
+                    localStorage.setItem('authToken', this.token); // Save token for later
+                    return data;
+                } catch (error) {
+                    console.error('Login failed:', error);
+                    throw error;
+                }
+            }
+
+            // Method to make authenticated requests
+            async authenticatedRequest(url, options = {}) {
+                if (!this.token) {
+                    throw new Error('No authentication token available');
+                }
+
+                const headers = {
+                    'Authorization': `Bearer ${this.token}`,
+                    ...options.headers
+                };
+
+                return fetch(url, { ...options, headers });
+            }
+
+            logout() {
+                this.token = null;
+                localStorage.removeItem('authToken');
+            }
+        }
+
+        // Initialize the auth client with your API endpoint
+        const auth = new AuthClient('http://localhost:5247');
+        
+        // Check if we're already logged in
+        if (auth.token) {
+            showLoggedInState();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+            const status = document.getElementById('status');
+
+            try {
+                const response = await auth.login(username, email, password);
+                status.textContent = 'Login successful!';
+                status.className = 'success';
+                showLoggedInState();
+            } catch (error) {
+                status.textContent = 'Login failed: ' + error.message;
+                status.className = 'error';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.logout();
+            showLoggedOutState();
+            const status = document.getElementById('status');
+            status.textContent = 'Logged out successfully';
+            status.className = 'success';
+        });
+
+        document.getElementById('fetchDataBtn').addEventListener('click', async () => {
+            const protectedData = document.getElementById('protectedData');
+            try {
+                const response = await auth.authenticatedRequest(
+                    'http://localhost:5247/todos/'
+                );
+                const data = await response.json();
+                protectedData.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                protectedData.textContent = 'Error fetching data: ' + error.message;
+            }
+        });
+
+        function showLoggedInState() {
+            document.getElementById('protected-content').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'inline-block';
+            document.getElementById('username').disabled = true;
+            document.getElementById('password').disabled = true;
+            document.querySelector('#loginForm button[type="submit"]').disabled = true;
+        }
+
+        function showLoggedOutState() {
+            document.getElementById('protected-content').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('username').disabled = false;
+            document.getElementById('password').disabled = false;
+            document.querySelector('#loginForm button[type="submit"]').disabled = false;
+            document.getElementById('protectedData').textContent = '';
+        }
+    </script>
+</body>
+</html>
